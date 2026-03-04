@@ -158,6 +158,8 @@ class OnDeviceInternalsToolsElement extends CrLitElement {
   protected accessor audioError_: string = '';
   protected accessor performanceHint_: string = 'kHighestQuality';
   private accessor loadedPerformanceHint_: ModelPerformanceHint|null = null;
+  private sessionTemperature_: number = 0;
+  private sessionTopK_: number = 1;
 
   private session_: SessionRemote|null = null;
   private proxy_: BrowserProxy = BrowserProxy.getInstance();
@@ -354,6 +356,8 @@ class OnDeviceInternalsToolsElement extends CrLitElement {
         audioInput: this.audioEnabled_(),
       },
     });
+    this.sessionTopK_ = this.topK_;
+    this.sessionTemperature_ = this.temperature_;
   }
 
   protected onCancelClick_() {
@@ -422,6 +426,10 @@ class OnDeviceInternalsToolsElement extends CrLitElement {
     }
     if (!this.$.temperatureInput.validate()) {
       return;
+    }
+    if (this.topK_ !== this.sessionTopK_ ||
+        this.temperature_ !== this.sessionTemperature_) {
+      this.startNewSession_();
     }
     const pieces = textToInputPieces(this.text_);
     if (this.imageFile_ !== null) {
